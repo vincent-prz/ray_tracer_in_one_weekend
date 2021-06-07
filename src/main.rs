@@ -1,6 +1,7 @@
 use std::io;
 use std::ops;
 
+#[derive(Copy, Clone)]
 struct Vec3(f64, f64, f64);
 
 impl Vec3 {
@@ -42,8 +43,31 @@ impl ops::Sub<Vec3> for Vec3 {
     }
 }
 
+impl ops::Mul<Vec3> for f64 {
+    type Output = Vec3;
+
+    fn mul(self, v: Vec3) -> Vec3 {
+        Vec3 (
+            self * v.x(),
+            self * v.y(),
+            self * v.z()
+        )
+    }
+}
+
 type Point3 = Vec3;
 type Color = Vec3;
+
+struct Ray {
+    origin: Point3,
+    direction: Vec3
+}
+
+impl Ray {
+    fn at(&self, t: f64) -> Point3 {
+        self.origin + t * self.direction
+    }
+}
 
 fn write_color(out: &mut Box<dyn io::Write>, pixel_color: Color) {
     let ir = (pixel_color.x() * 255.999) as u8;

@@ -16,6 +16,10 @@ impl Vec3 {
     fn z(&self) -> f64 {
         self.2
     }
+
+    fn length(&self) -> f64 {
+        (self.0 * self.0 + self.1 * self.1 + self.2 * self.2).sqrt()
+    }
 }
 
 
@@ -55,8 +59,32 @@ impl ops::Mul<Vec3> for f64 {
     }
 }
 
+impl ops::Div<f64> for Vec3 {
+    type Output = Vec3;
+
+    fn div(self, t: f64) -> Vec3 {
+        Vec3 (
+            self.x() / t,
+            self.y() / t,
+            self.z() / t
+        )
+    }
+}
+
+
 type Point3 = Vec3;
 type Color = Vec3;
+
+fn write_color(out: &mut Box<dyn io::Write>, pixel_color: Color) {
+    let ir = (pixel_color.x() * 255.999) as u8;
+    let ig = (pixel_color.y() * 255.999) as u8;
+    let ib = (pixel_color.z() * 255.999) as u8;
+    writeln!(out, "{} {} {}", ir, ig, ib);
+}
+
+fn unit_vector(v: &Vec3) -> Vec3 {
+    (1.0 / v.length()) * (*v)
+}
 
 struct Ray {
     origin: Point3,
@@ -69,24 +97,38 @@ impl Ray {
     }
 }
 
-fn write_color(out: &mut Box<dyn io::Write>, pixel_color: Color) {
-    let ir = (pixel_color.x() * 255.999) as u8;
-    let ig = (pixel_color.y() * 255.999) as u8;
-    let ib = (pixel_color.z() * 255.999) as u8;
-    writeln!(out, "{} {} {}", ir, ig, ib);
+fn ray_color(ray: &Ray) -> Color {
+    let unit_direction = unit_vector(&ray.direction);
+    let t = 0.5 * (unit_direction.y() + 1.0);
+    (1.0 - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0)
 }
 
-
 fn main() {
-    let image_width = 256;
-    let image_height = 256;
+    // Image
+    let aspect_ratio = 16.0 / 9.0;
+    let image_width = 400;
+    let image_height = (image_width as f64 / aspect_ratio) as u32;
+
+    // Camera
+
+    let viewport_height = 2.0;
+    let viewport_width = aspect_ratio * viewport_height;
+    let focal_length = 1.0;
+
+    let origin = Vec3(0.0, 0.0, 0.0);
+    let horizontal = Vec3(viewport_width, 0.0, 0.0);
+    let vertical = Vec3(0.0, viewport_height, 0.0);
+    let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - Vec3(0.0, 0.0, focal_length);
+
+    // render
     println!("P3\n{} {}\n255", image_width, image_height);
     for j in (0..image_height).rev() {
         for i in 0..image_width {
-            let r = i as f64 / (image_width - 1) as f64;
-            let g = j as f64 / (image_height - 1) as f64;
-            let b = 0.25;
-            let color = Vec3(r, g ,b);
+            let u = i as f64 / (image_width - 1) as f64;
+            let v = j as f64 / (image_height - 1) as f64;
+            let direction = lower_left_corner + u * horizontal + v * vertical - origin;
+            let ray = Ray { origin, direction };
+            let color = ray_color(&ray);
             let stdout = &mut (Box::new(io::stdout()) as Box<dyn io::Write>);
             write_color(stdout, color);
         }

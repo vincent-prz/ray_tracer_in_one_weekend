@@ -72,3 +72,7 @@ impl ops::Div<f64> for Vec3 {
 pub fn unit_vector(v: &Vec3) -> Vec3 {
     (1.0 / v.length()) * (*v)
 }
+
+pub fn dot(v: &Vec3, w: &Vec3) -> f64 {
+    v.x() * w.x() + v.y() * w.y() + v.z() * w.z()
+}

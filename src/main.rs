@@ -5,7 +5,6 @@ mod ray;
 use crate::vec3::Vec3;
 use std::io;
 
-
 fn main() {
     // Image
     let aspect_ratio = 16.0 / 9.0;
@@ -30,9 +29,7 @@ fn main() {
             let u = i as f64 / (image_width - 1) as f64;
             let v = j as f64 / (image_height - 1) as f64;
             let direction = lower_left_corner + u * horizontal + v * vertical - origin;
-            let ray = ray::Ray { origin, direction };
-            let color = ray::ray_color(&ray);
-            let stdout = &mut (Box::new(io::stdout()) as Box<dyn io::Write>);
+            let ray = ray::Ray { origin, direction }; let color = ray::ray_color(&ray); let stdout = &mut (Box::new(io::stdout()) as Box<dyn io::Write>);
             color::write_color(stdout, color);
         }
     }

@@ -2,6 +2,9 @@ mod vec3;
 mod color;
 mod point3;
 mod ray;
+// FIXME: I don;t understand why I need to put hittable here
+mod hittable;
+mod sphere;
 use crate::vec3::Vec3;
 use std::io;
 

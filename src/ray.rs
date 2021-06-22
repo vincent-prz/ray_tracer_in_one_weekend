@@ -25,7 +25,8 @@ pub fn ray_color(ray: &Ray) -> color::Color {
     let mut hit_record = hittable::HitRecord {
         p: Vec3(0.0, 0.0, 0.0),
         normal: Vec3(0.0, 0.0, 0.0),
-        t: 0.0
+        t: 0.0,
+        front_face: true,
     };
     let hit = sphere.hit(ray, 0.0, 100.0, &mut hit_record);
     if hit {

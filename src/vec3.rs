@@ -69,6 +69,18 @@ impl ops::Div<f64> for Vec3 {
     }
 }
 
+impl ops::Neg for Vec3 {
+    type Output = Self;
+
+    fn neg(self) -> Vec3 {
+        Vec3 (
+            -self.x(),
+            -self.y(),
+            -self.z()
+        )
+    }
+}
+
 pub fn unit_vector(v: &Vec3) -> Vec3 {
     (1.0 / v.length()) * (*v)
 }

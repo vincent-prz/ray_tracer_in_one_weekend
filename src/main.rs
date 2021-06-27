@@ -1,3 +1,4 @@
+extern crate rand;
 mod vec3;
 mod color;
 mod point3;
@@ -6,6 +7,7 @@ mod ray;
 mod hittable;
 mod hittable_list;
 mod sphere;
+mod utils;
 use hittable::Hittable;
 use hittable_list::HittableList;
 use crate::ray::*;
@@ -37,7 +39,8 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as u32;
-    //
+    let samples_per_pixel = 100;
+
     // World
     let mut world: HittableList<sphere::Sphere> = HittableList::new();
     world.add(sphere::Sphere {center: Vec3(0.0, 0.0, -1.0), radius: 0.5});
@@ -57,13 +60,21 @@ fn main() {
     // render
     println!("P3\n{} {}\n255", image_width, image_height);
     for j in (0..image_height).rev() {
+        eprintln!("{} lines remaining", j + 1);
         for i in 0..image_width {
-            let u = i as f64 / (image_width - 1) as f64;
-            let v = j as f64 / (image_height - 1) as f64;
-            let direction = lower_left_corner + u * horizontal + v * vertical - origin;
-            let ray = ray::Ray { origin, direction }; let color = ray_color(&ray, &world);
+            let mut color = Vec3(0.0, 0.0, 0.0);
+            for _ in 0..samples_per_pixel {
+                let random_val: f64 = rand::random();
+                let u = (i as f64 + random_val) / (image_width - 1) as f64;
+                let random_val: f64 = rand::random();
+                let v = (j as f64 + random_val) / (image_height - 1) as f64;
+                let direction = lower_left_corner + u * horizontal + v * vertical - origin;
+                let ray = ray::Ray { origin, direction };
+                color = color + ray_color(&ray, &world);
+            }
             let stdout = &mut (Box::new(io::stdout()) as Box<dyn io::Write>);
-            color::write_color(stdout, color);
+            color::write_color(stdout, color, samples_per_pixel);
         }
     }
+    eprintln!("Done.");
 }

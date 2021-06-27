@@ -1,9 +1,5 @@
 use super::vec3::*;
 use super::point3::Point3;
-use super::color;
-use super::hittable;
-use super::hittable::Hittable;
-use super::sphere;
 
 pub struct Ray {
     pub origin: Point3,

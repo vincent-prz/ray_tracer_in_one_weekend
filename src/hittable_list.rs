@@ -1,7 +1,6 @@
 use crate::hittable::Hittable;
 use crate::hittable::HitRecord;
 use crate::ray::Ray;
-use crate::point3::Point3;
 
 pub struct HittableList<T: Hittable> {
     objects: Vec<T>

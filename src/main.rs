@@ -1,5 +1,6 @@
 extern crate rand;
 mod vec3;
+mod camera;
 mod color;
 mod point3;
 mod ray;
@@ -47,15 +48,7 @@ fn main() {
     world.add(sphere::Sphere {center: Vec3(0.0, -100.5, -1.0), radius: 100.0});
 
     // Camera
-
-    let viewport_height = 2.0;
-    let viewport_width = aspect_ratio * viewport_height;
-    let focal_length = 1.0;
-
-    let origin = Vec3(0.0, 0.0, 0.0);
-    let horizontal = Vec3(viewport_width, 0.0, 0.0);
-    let vertical = Vec3(0.0, viewport_height, 0.0);
-    let lower_left_corner = origin - horizontal / 2.0 - vertical / 2.0 - Vec3(0.0, 0.0, focal_length);
+    let cam = camera::Camera::new();
 
     // render
     println!("P3\n{} {}\n255", image_width, image_height);
@@ -68,8 +61,7 @@ fn main() {
                 let u = (i as f64 + random_val) / (image_width - 1) as f64;
                 let random_val: f64 = rand::random();
                 let v = (j as f64 + random_val) / (image_height - 1) as f64;
-                let direction = lower_left_corner + u * horizontal + v * vertical - origin;
-                let ray = ray::Ray { origin, direction };
+                let ray = cam.get_ray(u, v);
                 color = color + ray_color(&ray, &world);
             }
             let stdout = &mut (Box::new(io::stdout()) as Box<dyn io::Write>);

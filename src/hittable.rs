@@ -1,10 +1,12 @@
 use crate::ray;
 use crate::vec3;
+use crate::material::Material;
 use crate::point3;
 
 pub struct HitRecord {
     pub p: point3::Point3,
     pub normal: vec3::Vec3,
+    pub mat: Material,
     pub t: f64,
     pub front_face: bool
 }
@@ -14,6 +16,7 @@ impl HitRecord {
         HitRecord {
             p: vec3::Vec3(0.0, 0.0, 0.0),
             normal: vec3::Vec3(0.0, 0.0, 0.0),
+            mat: Material::new(),
             t: 0.0,
             front_face: true,
         }

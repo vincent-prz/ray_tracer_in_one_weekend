@@ -2,6 +2,7 @@ extern crate rand;
 mod vec3;
 mod camera;
 mod color;
+mod material;
 mod point3;
 mod ray;
 // FIXME: I don;t understand why I need to put hittable here
@@ -11,6 +12,7 @@ mod sphere;
 mod utils;
 use hittable::Hittable;
 use hittable_list::HittableList;
+use material::Material;
 use crate::ray::*;
 use crate::vec3::*;
 use std::io;
@@ -24,17 +26,11 @@ pub fn ray_color<T: Hittable>(ray: &Ray, world: &T, depth: u32) -> color::Color 
     let mut hit_record = hittable::HitRecord::new();
     let hit = world.hit(ray, 0.001, 100.0, &mut hit_record);
     if hit {
-        // hacky diffuse rendered
-        // let target = hit_record.p + hit_record.normal + Vec3::random_in_unit_sphere();
-        // true lambertien renderer
-        // let target = hit_record.p + hit_record.normal + Vec3::random_unit_vector();
-        // alternative renderer (8.6)
-        let target = hit_record.p + Vec3::random_in_hemisphere(&hit_record.normal);
-        let ray = Ray {
-            origin: hit_record.p,
-            direction: target - hit_record.p,
-        };
-        return 0.5 * ray_color(&ray, world, depth - 1);
+        let mut scattered = Ray::new();
+        let mut attenuation = Vec3(0.0, 0.0, 0.0);
+        if hit_record.mat.scatter(ray, &hit_record, &mut attenuation, &mut scattered) {
+            return attenuation * ray_color(&scattered, world, depth - 1);
+        }
     }
     let unit_direction = unit_vector(&ray.direction);
     let t = 0.5 * (unit_direction.y() + 1.0);
@@ -51,8 +47,10 @@ fn main() {
 
     // World
     let mut world: HittableList<sphere::Sphere> = HittableList::new();
-    world.add(sphere::Sphere {center: Vec3(0.0, 0.0, -1.0), radius: 0.5});
-    world.add(sphere::Sphere {center: Vec3(0.0, -100.5, -1.0), radius: 100.0});
+    world.add(sphere::Sphere {center: Vec3(0.0, 0.0, -1.0), radius: 0.5,
+         mat: Material::Lambertian {albedo: Vec3(0.5, 0.5, 0.5)}});
+    world.add(sphere::Sphere {center: Vec3(0.0, -100.5, -1.0), radius: 100.0,
+         mat: Material::Lambertian {albedo: Vec3(0.5, 0.5, 0.5)}});
 
     // Camera
     let cam = camera::Camera::new();

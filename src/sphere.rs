@@ -1,11 +1,13 @@
 use crate::hittable;
 use crate::ray;
+use super::material::Material;
 use crate::point3::Point3;
 use super::vec3::dot;
 
 pub struct Sphere {
     pub center: Point3,
-    pub radius: f64
+    pub radius: f64,
+    pub mat: Material,
 }
 
 impl hittable::Hittable for Sphere {
@@ -29,6 +31,7 @@ impl hittable::Hittable for Sphere {
         }
         rec.t = root;
         rec.p = ray.at(rec.t);
+        rec.mat = self.mat;
         let outward_normal = (rec.p - self.center) / self.radius;
         rec.set_face_normal(ray, &outward_normal);
         true

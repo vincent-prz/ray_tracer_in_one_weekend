@@ -10,8 +10,8 @@ pub fn write_color(out: &mut Box<dyn io::Write>, pixel_color: Color, samples_per
     let b = pixel_color.z();
     let scale = 1.0 / samples_per_pixel as f64;
 
-    let ir = (utils::clamp(r * scale, 0.0, 0.999) * 256.0) as u8;
-    let ig = (utils::clamp(g * scale, 0.0, 0.999) * 256.0) as u8;
-    let ib = (utils::clamp(b * scale, 0.0, 0.999) * 256.0) as u8;
+    let ir = (utils::clamp((r * scale).sqrt(), 0.0, 0.999) * 256.0) as u8;
+    let ig = (utils::clamp((g * scale).sqrt(), 0.0, 0.999) * 256.0) as u8;
+    let ib = (utils::clamp((b * scale).sqrt(), 0.0, 0.999) * 256.0) as u8;
     writeln!(out, "{} {} {}", ir, ig, ib);
 }

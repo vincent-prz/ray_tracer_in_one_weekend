@@ -22,7 +22,7 @@ pub fn ray_color<T: Hittable>(ray: &Ray, world: &T, depth: u32) -> color::Color 
         return Vec3(0.0, 0.0, 0.0);
     }
     let mut hit_record = hittable::HitRecord::new();
-    let hit = world.hit(ray, 0.0, 100.0, &mut hit_record);
+    let hit = world.hit(ray, 0.001, 100.0, &mut hit_record);
     if hit {
         let target = hit_record.p + hit_record.normal + Vec3::random_in_unit_sphere();
         let ray = Ray {

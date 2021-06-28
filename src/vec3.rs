@@ -1,3 +1,4 @@
+extern crate rand;
 use std::ops;
 
 #[derive(Copy, Clone)]
@@ -18,6 +19,30 @@ impl Vec3 {
 
     pub fn length(&self) -> f64 {
         (self.0 * self.0 + self.1 * self.1 + self.2 * self.2).sqrt()
+    }
+
+    pub fn length_squared(&self) -> f64 {
+        self.0 * self.0 + self.1 * self.1 + self.2 * self.2
+    }
+
+    pub fn random(min: f64, max: f64) -> Vec3 {
+        let x: f64 = rand::random();
+        let y: f64 = rand::random();
+        let z: f64 = rand::random();
+        Vec3(
+            x * (max - min) + min,
+            y * (max - min) + min,
+            z * (max - min) + min,
+        )
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+        loop {
+            let p = Vec3::random(-1.0, 1.0);
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
     }
 }
 

@@ -16,19 +16,20 @@ use crate::vec3::*;
 use std::io;
 
 
-pub fn ray_color<T: Hittable>(ray: &Ray, world: &T) -> color::Color {
-    // initialize the record with random values
-    let mut hit_record = hittable::HitRecord {
-        p: Vec3(0.0, 0.0, 0.0),
-        normal: Vec3(0.0, 0.0, 0.0),
-        t: 0.0,
-        front_face: true,
-    };
+pub fn ray_color<T: Hittable>(ray: &Ray, world: &T, depth: u32) -> color::Color {
+    // If we've exceeded the ray bounce limit, no more light is gathered.
+    if depth <= 0 {
+        return Vec3(0.0, 0.0, 0.0);
+    }
+    let mut hit_record = hittable::HitRecord::new();
     let hit = world.hit(ray, 0.0, 100.0, &mut hit_record);
     if hit {
-        let normal = hit_record.normal;
-        // 0.5(v + 1) -> [-1, 1] => [0, 1]
-        return 0.5 * Vec3(normal.x() + 1.0, normal.y() + 1.0, normal.z() + 1.0);
+        let target = hit_record.p + hit_record.normal + Vec3::random_in_unit_sphere();
+        let ray = Ray {
+            origin: hit_record.p,
+            direction: target - hit_record.p,
+        };
+        return 0.5 * ray_color(&ray, world, depth - 1);
     }
     let unit_direction = unit_vector(&ray.direction);
     let t = 0.5 * (unit_direction.y() + 1.0);
@@ -41,6 +42,7 @@ fn main() {
     let image_width = 400;
     let image_height = (image_width as f64 / aspect_ratio) as u32;
     let samples_per_pixel = 100;
+    let max_depth = 50;
 
     // World
     let mut world: HittableList<sphere::Sphere> = HittableList::new();
@@ -62,7 +64,7 @@ fn main() {
                 let random_val: f64 = rand::random();
                 let v = (j as f64 + random_val) / (image_height - 1) as f64;
                 let ray = cam.get_ray(u, v);
-                color = color + ray_color(&ray, &world);
+                color = color + ray_color(&ray, &world, max_depth);
             }
             let stdout = &mut (Box::new(io::stdout()) as Box<dyn io::Write>);
             color::write_color(stdout, color, samples_per_pixel);

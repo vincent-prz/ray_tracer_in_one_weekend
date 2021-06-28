@@ -44,6 +44,18 @@ impl Vec3 {
             }
         }
     }
+
+    pub fn random_unit_vector() -> Vec3 {
+        unit_vector(&Vec3::random_in_unit_sphere())
+    }
+
+    pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
+        let v = Vec3::random_in_unit_sphere();
+        if dot(&v, normal) > 0.0 {
+            return v;
+        }
+        -v
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {

@@ -24,7 +24,12 @@ pub fn ray_color<T: Hittable>(ray: &Ray, world: &T, depth: u32) -> color::Color 
     let mut hit_record = hittable::HitRecord::new();
     let hit = world.hit(ray, 0.001, 100.0, &mut hit_record);
     if hit {
-        let target = hit_record.p + hit_record.normal + Vec3::random_in_unit_sphere();
+        // hacky diffuse rendered
+        // let target = hit_record.p + hit_record.normal + Vec3::random_in_unit_sphere();
+        // true lambertien renderer
+        // let target = hit_record.p + hit_record.normal + Vec3::random_unit_vector();
+        // alternative renderer (8.6)
+        let target = hit_record.p + Vec3::random_in_hemisphere(&hit_record.normal);
         let ray = Ray {
             origin: hit_record.p,
             direction: target - hit_record.p,

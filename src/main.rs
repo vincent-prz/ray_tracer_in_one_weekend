@@ -49,8 +49,8 @@ fn main() {
     let mut world: HittableList<sphere::Sphere> = HittableList::new();
     let material_ground = Material::Lambertian { albedo: Vec3(0.8, 0.8, 0.0) };
     let material_center = Material::Lambertian { albedo: Vec3(0.7, 0.3, 0.3) };
-    let material_left = Material::Metal { albedo: Vec3(0.8, 0.8, 0.8) };
-    let material_right = Material::Metal { albedo: Vec3(0.8, 0.6, 0.2) };
+    let material_left = Material::Metal { albedo: Vec3(0.8, 0.8, 0.8), fuzz: Some(0.3) };
+    let material_right = Material::Metal { albedo: Vec3(0.8, 0.6, 0.2), fuzz: Some(1.0) };
 
     world.add(sphere::Sphere {center: Vec3(0.0, -100.5, -1.0), radius: 100.0,
          mat: material_ground});

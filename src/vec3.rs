@@ -56,6 +56,11 @@ impl Vec3 {
         }
         -v
     }
+
+    pub fn near_zero(&self) -> bool {
+        let threshold = 1e-8;
+        self.0.abs() < threshold && self.1.abs() < threshold && self.2.abs() < threshold
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {

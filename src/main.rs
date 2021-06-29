@@ -47,10 +47,19 @@ fn main() {
 
     // World
     let mut world: HittableList<sphere::Sphere> = HittableList::new();
-    world.add(sphere::Sphere {center: Vec3(0.0, 0.0, -1.0), radius: 0.5,
-         mat: Material::Lambertian {albedo: Vec3(0.5, 0.5, 0.5)}});
+    let material_ground = Material::Lambertian { albedo: Vec3(0.8, 0.8, 0.0) };
+    let material_center = Material::Lambertian { albedo: Vec3(0.7, 0.3, 0.3) };
+    let material_left = Material::Metal { albedo: Vec3(0.8, 0.8, 0.8) };
+    let material_right = Material::Metal { albedo: Vec3(0.8, 0.6, 0.2) };
+
     world.add(sphere::Sphere {center: Vec3(0.0, -100.5, -1.0), radius: 100.0,
-         mat: Material::Lambertian {albedo: Vec3(0.5, 0.5, 0.5)}});
+         mat: material_ground});
+    world.add(sphere::Sphere {center: Vec3(0.0, 0.0, -1.0), radius: 0.5,
+         mat: material_center});
+    world.add(sphere::Sphere {center: Vec3(-1.0, 0.0, -1.0), radius: 0.5,
+         mat: material_left});
+    world.add(sphere::Sphere {center: Vec3(1.0, 0.0, -1.0), radius: 0.5,
+         mat: material_right});
 
     // Camera
     let cam = camera::Camera::new();

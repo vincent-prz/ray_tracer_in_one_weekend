@@ -1,3 +1,4 @@
+use super::vec3::dot;
 use super::vec3::Vec3;
 use super::color::Color;
 use super::ray::Ray;
@@ -6,6 +7,7 @@ use super::hittable::HitRecord;
 #[derive(Copy, Clone)]
 pub enum Material {
     Lambertian {albedo: Color},
+    Metal {albedo: Color},
 }
 
 
@@ -18,15 +20,39 @@ impl Material {
          scattered: &mut Ray) -> bool {
         match self {
             Material::Lambertian { albedo } => {
-                let scatter_direction = hit_record.normal + Vec3::random_unit_vector();
-                *scattered = Ray {
-                    origin: hit_record.p,
-                    direction: scatter_direction,
-                };
-                *attenuation = *albedo;
-                true
+                Material::lambertian_scatter(albedo, hit_record, attenuation, scattered)
+            }
+            Material::Metal { albedo } => {
+                Material::metal_scatter(albedo, r_in, hit_record, attenuation, scattered)
             }
         }
+    }
 
+    fn lambertian_scatter(albedo: &Color, hit_record: &HitRecord,
+        attenuation: &mut Color, scattered: &mut Ray) -> bool {
+        let mut scatter_direction = hit_record.normal + Vec3::random_unit_vector();
+        if scatter_direction.near_zero() {
+            scatter_direction = hit_record.normal;
+        }
+        *scattered = Ray {
+            origin: hit_record.p,
+            direction: scatter_direction,
+        };
+        *attenuation = *albedo;
+        true
+    }
+
+    fn metal_scatter(albedo: &Color, r_in: &Ray, hit_record: &HitRecord,
+        attenuation: &mut Color, scattered: &mut Ray) -> bool {
+        let v = r_in.direction;
+        let n = hit_record.normal;
+        let b = -dot(&v, &n) * n;
+        let scatter_direction = v + 2.0 * b;
+        *scattered = Ray {
+            origin: hit_record.p,
+            direction: scatter_direction,
+        };
+        *attenuation = *albedo;
+        dot(&scatter_direction, &n) > 0.0
     }
 }

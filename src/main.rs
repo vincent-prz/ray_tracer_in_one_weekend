@@ -49,9 +49,9 @@ fn main() {
     // World
     let mut world: HittableList<sphere::Sphere> = HittableList::new();
     let material_ground = Material::Lambertian { albedo: Vec3(0.8, 0.8, 0.0) };
-    let material_center = Material::Dielectric { refraction_index: 1.5 };
+    let material_center = Material::Lambertian { albedo: Vec3(0.1, 0.2, 0.5) };
     let material_left = Material::Dielectric { refraction_index: 1.5 };
-    let material_right = Material::Metal { albedo: Vec3(0.8, 0.6, 0.2), fuzz: Some(1.0) };
+    let material_right = Material::Metal { albedo: Vec3(0.8, 0.6, 0.2), fuzz: None };
 
     world.add(sphere::Sphere {center: Vec3(0.0, -100.5, -1.0), radius: 100.0,
          mat: material_ground});

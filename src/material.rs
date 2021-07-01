@@ -67,9 +67,18 @@ impl Material {
     fn dielectric_scatter(refraction_index: f64, r_in: &Ray, hit_record: &HitRecord,
         attenuation: &mut Color, scattered: &mut Ray) -> bool {
         *attenuation = Vec3(1.0, 1.0, 1.0);
+        let unit_dir = unit_vector(&r_in.direction);
+        let n = hit_record.normal;
         let refraction_ratio = if hit_record.front_face { 1.0 / refraction_index } else { refraction_index };
-        let scatter_direction = Vec3::refract(
-            unit_vector(&r_in.direction), hit_record.normal, refraction_ratio);
+        let cos_theta = -dot(&unit_dir, &n);
+        let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+
+        let cannot_refract = refraction_ratio * sin_theta > 1.0;
+        let scatter_direction = if cannot_refract {
+            Vec3::reflect(unit_dir, n)
+        } else {
+            Vec3::refract(unit_dir, n, refraction_ratio)
+        };
         *scattered = Ray {
             origin: hit_record.p,
             direction: scatter_direction,

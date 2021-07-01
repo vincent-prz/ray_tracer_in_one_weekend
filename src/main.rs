@@ -45,6 +45,7 @@ fn main() {
     let image_height = (image_width as f64 / aspect_ratio) as u32;
     let samples_per_pixel = 100;
     let max_depth = 50;
+    let vertical_fov = 60.0; // vertical field of view
 
     // World
     let mut world: HittableList<sphere::Sphere> = HittableList::new();
@@ -59,11 +60,13 @@ fn main() {
          mat: material_center});
     world.add(sphere::Sphere {center: Vec3(-1.0, 0.0, -1.0), radius: 0.5,
          mat: material_left});
+    world.add(sphere::Sphere {center: Vec3(-1.0, 0.0, -1.0), radius: -0.4,
+         mat: material_left});
     world.add(sphere::Sphere {center: Vec3(1.0, 0.0, -1.0), radius: 0.5,
          mat: material_right});
 
     // Camera
-    let cam = camera::Camera::new();
+    let cam = camera::Camera::new(vertical_fov, aspect_ratio);
 
     // render
     println!("P3\n{} {}\n255", image_width, image_height);

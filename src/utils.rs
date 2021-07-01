@@ -7,3 +7,9 @@ pub fn clamp(x: f64, min: f64, max: f64) -> f64 {
     }
     x
 }
+
+const pi: f64 = 3.1415926535897932385;
+
+pub fn degrees_to_radians(degree_val: f64) -> f64 {
+    pi * degree_val / 180.0
+}

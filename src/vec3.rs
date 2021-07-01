@@ -61,6 +61,17 @@ impl Vec3 {
         let threshold = 1e-8;
         self.0.abs() < threshold && self.1.abs() < threshold && self.2.abs() < threshold
     }
+
+    pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+        let b = -dot(&v, &n) * n;
+        v + 2.0 * b
+    }
+
+    pub fn refract(v: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
+        let orthogonal = etai_over_etat * (v - dot(&v, &n) * n);
+        let parallel = -((1.0 - orthogonal.length_squared()).abs()).sqrt() * n;
+        orthogonal + parallel
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {

@@ -24,13 +24,14 @@ pub fn ray_color<T: Hittable>(ray: &Ray, world: &T, depth: u32) -> color::Color 
         return Vec3(0.0, 0.0, 0.0);
     }
     let mut hit_record = hittable::HitRecord::new();
-    let hit = world.hit(ray, 0.001, 100.0, &mut hit_record);
+    let hit = world.hit(ray, 0.001, 1000.0, &mut hit_record);
     if hit {
         let mut scattered = Ray::new();
         let mut attenuation = Vec3(0.0, 0.0, 0.0);
         if hit_record.mat.scatter(ray, &hit_record, &mut attenuation, &mut scattered) {
             return attenuation * ray_color(&scattered, world, depth - 1);
         }
+        return Vec3(0.0, 0.0, 0.0);
     }
     let unit_direction = unit_vector(&ray.direction);
     let t = 0.5 * (unit_direction.y() + 1.0);
@@ -48,8 +49,8 @@ fn main() {
     // World
     let mut world: HittableList<sphere::Sphere> = HittableList::new();
     let material_ground = Material::Lambertian { albedo: Vec3(0.8, 0.8, 0.0) };
-    let material_center = Material::Lambertian { albedo: Vec3(0.7, 0.3, 0.3) };
-    let material_left = Material::Metal { albedo: Vec3(0.8, 0.8, 0.8), fuzz: Some(0.3) };
+    let material_center = Material::Dielectric { refraction_index: 1.5 };
+    let material_left = Material::Dielectric { refraction_index: 1.5 };
     let material_right = Material::Metal { albedo: Vec3(0.8, 0.6, 0.2), fuzz: Some(1.0) };
 
     world.add(sphere::Sphere {center: Vec3(0.0, -100.5, -1.0), radius: 100.0,

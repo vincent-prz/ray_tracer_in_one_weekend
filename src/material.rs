@@ -1,4 +1,5 @@
 use super::vec3::dot;
+use super::vec3::unit_vector;
 use super::vec3::Vec3;
 use super::color::Color;
 use super::ray::Ray;
@@ -6,8 +7,9 @@ use super::hittable::HitRecord;
 
 #[derive(Copy, Clone)]
 pub enum Material {
-    Lambertian {albedo: Color},
+    Lambertian { albedo: Color },
     Metal { albedo: Color, fuzz: Option<f64> },
+    Dielectric { refraction_index: f64 },
 }
 
 
@@ -24,6 +26,9 @@ impl Material {
             }
             Material::Metal { albedo, fuzz } => {
                 Material::metal_scatter(albedo, *fuzz, r_in, hit_record, attenuation, scattered)
+            }
+            Material::Dielectric { refraction_index } => {
+                Material::dielectric_scatter(*refraction_index, r_in, hit_record, attenuation, scattered)
             }
         }
     }
@@ -44,19 +49,31 @@ impl Material {
 
     fn metal_scatter(albedo: &Color, fuzz: Option<f64>, r_in: &Ray, hit_record: &HitRecord,
         attenuation: &mut Color, scattered: &mut Ray) -> bool {
-        let v = r_in.direction;
+        let v = unit_vector(&r_in.direction);
         let n = hit_record.normal;
-        let b = -dot(&v, &n) * n;
         let fuzz_value = match fuzz {
             Some(val) => val,
             None => 0.0
         };
-        let scatter_direction = v + 2.0 * b + fuzz_value * Vec3::random_in_unit_sphere();
+        let scatter_direction = Vec3::reflect(v, n) + fuzz_value * Vec3::random_in_unit_sphere();
         *scattered = Ray {
             origin: hit_record.p,
             direction: scatter_direction,
         };
         *attenuation = *albedo;
         dot(&scatter_direction, &n) > 0.0
+    }
+
+    fn dielectric_scatter(refraction_index: f64, r_in: &Ray, hit_record: &HitRecord,
+        attenuation: &mut Color, scattered: &mut Ray) -> bool {
+        *attenuation = Vec3(1.0, 1.0, 1.0);
+        let refraction_ratio = if hit_record.front_face { 1.0 / refraction_index } else { refraction_index };
+        let scatter_direction = Vec3::refract(
+            unit_vector(&r_in.direction), hit_record.normal, refraction_ratio);
+        *scattered = Ray {
+            origin: hit_record.p,
+            direction: scatter_direction,
+        };
+        true
     }
 }

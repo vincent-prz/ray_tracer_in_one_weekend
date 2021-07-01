@@ -22,9 +22,9 @@ impl hittable::Hittable for Sphere {
             return false;
         }
         let sqrtd = discriminant.sqrt();
-        let root = (-b - sqrtd) / (2.0 * a);
+        let mut root = (-b - sqrtd) / (2.0 * a);
         if root < t_min || t_max < root {
-            let root = (-b + sqrtd) / (2.0 * a);
+            root = (-b + sqrtd) / (2.0 * a);
             if root < t_min || t_max < root {
                 return false;
             }

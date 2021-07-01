@@ -33,7 +33,7 @@ pub fn ray_color<T: Hittable>(ray: &Ray, world: &T, depth: u32) -> color::Color 
         }
         return Vec3(0.0, 0.0, 0.0);
     }
-    let unit_direction = unit_vector(&ray.direction);
+    let unit_direction = unit_vector(ray.direction);
     let t = 0.5 * (unit_direction.y() + 1.0);
     (1.0 - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0)
 }
@@ -45,7 +45,7 @@ fn main() {
     let image_height = (image_width as f64 / aspect_ratio) as u32;
     let samples_per_pixel = 100;
     let max_depth = 50;
-    let vertical_fov = 60.0; // vertical field of view
+    let vertical_fov = 20.0; // vertical field of view
 
     // World
     let mut world: HittableList<sphere::Sphere> = HittableList::new();
@@ -66,7 +66,13 @@ fn main() {
          mat: material_right});
 
     // Camera
-    let cam = camera::Camera::new(vertical_fov, aspect_ratio);
+    let cam = camera::Camera::new(
+        Vec3(-2.0, 2.0, 1.0),
+        Vec3(0.0, 0.0, -1.0),
+        Vec3(0.0, 1.0, 0.0),
+        vertical_fov,
+        aspect_ratio
+    );
 
     // render
     println!("P3\n{} {}\n255", image_width, image_height);

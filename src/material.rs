@@ -49,7 +49,7 @@ impl Material {
 
     fn metal_scatter(albedo: &Color, fuzz: Option<f64>, r_in: &Ray, hit_record: &HitRecord,
         attenuation: &mut Color, scattered: &mut Ray) -> bool {
-        let v = unit_vector(&r_in.direction);
+        let v = unit_vector(r_in.direction);
         let n = hit_record.normal;
         let fuzz_value = match fuzz {
             Some(val) => val,
@@ -67,7 +67,7 @@ impl Material {
     fn dielectric_scatter(refraction_index: f64, r_in: &Ray, hit_record: &HitRecord,
         attenuation: &mut Color, scattered: &mut Ray) -> bool {
         *attenuation = Vec3(1.0, 1.0, 1.0);
-        let unit_dir = unit_vector(&r_in.direction);
+        let unit_dir = unit_vector(r_in.direction);
         let n = hit_record.normal;
         let refraction_ratio = if hit_record.front_face { 1.0 / refraction_index } else { refraction_index };
         let cos_theta = -dot(&unit_dir, &n);

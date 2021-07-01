@@ -46,7 +46,7 @@ impl Vec3 {
     }
 
     pub fn random_unit_vector() -> Vec3 {
-        unit_vector(&Vec3::random_in_unit_sphere())
+        unit_vector(Vec3::random_in_unit_sphere())
     }
 
     pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
@@ -146,10 +146,18 @@ impl ops::Neg for Vec3 {
     }
 }
 
-pub fn unit_vector(v: &Vec3) -> Vec3 {
-    (1.0 / v.length()) * (*v)
+pub fn unit_vector(v: Vec3) -> Vec3 {
+    (1.0 / v.length()) * v
 }
 
 pub fn dot(v: &Vec3, w: &Vec3) -> f64 {
     v.x() * w.x() + v.y() * w.y() + v.z() * w.z()
+}
+
+pub fn cross(u: Vec3, v: Vec3) -> Vec3 {
+    Vec3(
+        u.y() * v.z() - u.z() * v.y(),
+        u.z() * v.x() - u.x() * v.z(),
+        u.x() * v.y() - u.y() * v.x(),
+    )
 }

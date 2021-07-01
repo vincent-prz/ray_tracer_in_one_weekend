@@ -15,6 +15,8 @@ use hittable_list::HittableList;
 use material::Material;
 use crate::ray::*;
 use crate::vec3::*;
+use crate::sphere::Sphere;
+use rand::random;
 use std::io;
 
 
@@ -38,6 +40,46 @@ pub fn ray_color<T: Hittable>(ray: &Ray, world: &T, depth: u32) -> color::Color 
     (1.0 - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0)
 }
 
+fn random_scene() -> HittableList<Sphere> {
+    let mut world: HittableList<Sphere> = HittableList::new();
+    let material_ground = Material::Lambertian { albedo: Vec3(0.5, 0.5, 0.5) };
+    world.add(sphere::Sphere {center: Vec3(0.0, -1000.0, 0.0), radius: 1000.0,
+         mat: material_ground});
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat: f64 = random();
+            let a_random: f64 = random();
+            let b_random: f64 = random();
+            let center = Vec3((a as f64) + 0.9 * a_random, 0.2, (b as f64) + 0.9 * b_random);
+            if (center - Vec3(4.0, 0.2, 0.0)).length() > 0.9 {
+                if choose_mat < 0.8 {
+                    // diffuse
+                    let albedo = Vec3::random(0.0, 1.0) * Vec3::random(0.0, 1.0);
+                    let sphere_material = Material::Lambertian { albedo };
+                    world.add(Sphere { center, radius: 0.2, mat: sphere_material})
+                }  else if choose_mat < 0.95 {
+                    // metal
+                    let albedo = Vec3::random(0.5, 1.0);
+                    let fuzz : f64 = random();
+                    let sphere_material = Material::Metal { albedo, fuzz: Some(fuzz) };
+                    world.add(Sphere { center, radius: 0.2, mat: sphere_material})
+                } else {
+                    // glass
+                    let sphere_material = Material::Dielectric { refraction_index: 1.5 };
+                    world.add(Sphere { center, radius: 0.2, mat: sphere_material})
+                }
+            }
+        }
+    }
+    let material_dielectric = Material::Dielectric { refraction_index: 1.5 };
+    world.add(Sphere { center: Vec3(0.0, 1.0, 0.0), radius: 1.0, mat: material_dielectric });
+    let material_lambertian = Material::Lambertian { albedo: Vec3(0.4, 0.2, 0.1) };
+    world.add(Sphere { center: Vec3(-4.0, 1.0, 0.0), radius: 1.0, mat: material_lambertian });
+    let material_metal = Material::Metal { albedo: Vec3(0.7, 0.6, 0.5), fuzz: None };
+    world.add(Sphere { center: Vec3(4.0, 1.0, 0.0), radius: 1.0, mat: material_metal });
+    world
+}
+
 fn main() {
     // Image
     let aspect_ratio = 16.0 / 9.0;
@@ -48,28 +90,16 @@ fn main() {
     let vertical_fov = 20.0; // vertical field of view
 
     // World
-    let mut world: HittableList<sphere::Sphere> = HittableList::new();
-    let material_ground = Material::Lambertian { albedo: Vec3(0.8, 0.8, 0.0) };
-    let material_center = Material::Lambertian { albedo: Vec3(0.1, 0.2, 0.5) };
-    let material_left = Material::Dielectric { refraction_index: 1.5 };
-    let material_right = Material::Metal { albedo: Vec3(0.8, 0.6, 0.2), fuzz: None };
-
-    world.add(sphere::Sphere {center: Vec3(0.0, -100.5, -1.0), radius: 100.0,
-         mat: material_ground});
-    world.add(sphere::Sphere {center: Vec3(0.0, 0.0, -1.0), radius: 0.5,
-         mat: material_center});
-    world.add(sphere::Sphere {center: Vec3(-1.0, 0.0, -1.0), radius: 0.5,
-         mat: material_left});
-    world.add(sphere::Sphere {center: Vec3(-1.0, 0.0, -1.0), radius: -0.4,
-         mat: material_left});
-    world.add(sphere::Sphere {center: Vec3(1.0, 0.0, -1.0), radius: 0.5,
-         mat: material_right});
+    let world = random_scene();
 
     // Camera
+    let look_from = Vec3(13.0, 2.0, 3.0);
+    let look_at = Vec3(0.0, 0.0, 0.0);
+    let vup = Vec3(0.0, 1.0, 0.0);
     let cam = camera::Camera::new(
-        Vec3(-2.0, 2.0, 1.0),
-        Vec3(0.0, 0.0, -1.0),
-        Vec3(0.0, 1.0, 0.0),
+        look_from,
+        look_at,
+        vup,
         vertical_fov,
         aspect_ratio
     );
@@ -81,9 +111,9 @@ fn main() {
         for i in 0..image_width {
             let mut color = Vec3(0.0, 0.0, 0.0);
             for _ in 0..samples_per_pixel {
-                let random_val: f64 = rand::random();
+                let random_val: f64 = random();
                 let u = (i as f64 + random_val) / (image_width - 1) as f64;
-                let random_val: f64 = rand::random();
+                let random_val: f64 = random();
                 let v = (j as f64 + random_val) / (image_height - 1) as f64;
                 let ray = cam.get_ray(u, v);
                 color = color + ray_color(&ray, &world, max_depth);

@@ -14,9 +14,9 @@ impl hittable::Hittable for Sphere {
     fn hit(&self, ray: &ray::Ray, t_min: f64, t_max: f64,
            rec: &mut hittable::HitRecord) -> bool {
         let oc = ray.origin - self.center;
-        let a = dot(&ray.direction, &ray.direction);
-        let b = 2.0 * dot(&ray.direction, &oc);
-        let c = dot(&oc, &oc) - self.radius * self.radius;
+        let a = dot(ray.direction, ray.direction);
+        let b = 2.0 * dot(ray.direction, oc);
+        let c = dot(oc, oc) - self.radius * self.radius;
         let discriminant = b * b - 4.0 * a * c;
         if discriminant < 0.0 {
             return false;

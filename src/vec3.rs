@@ -51,7 +51,7 @@ impl Vec3 {
 
     pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
         let v = Vec3::random_in_unit_sphere();
-        if dot(&v, normal) > 0.0 {
+        if dot(v, *normal) > 0.0 {
             return v;
         }
         -v
@@ -63,12 +63,12 @@ impl Vec3 {
     }
 
     pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
-        let b = -dot(&v, &n) * n;
+        let b = -dot(v, n) * n;
         v + 2.0 * b
     }
 
     pub fn refract(v: Vec3, n: Vec3, etai_over_etat: f64) -> Vec3 {
-        let orthogonal = etai_over_etat * (v - dot(&v, &n) * n);
+        let orthogonal = etai_over_etat * (v - dot(v, n) * n);
         let parallel = -((1.0 - orthogonal.length_squared()).abs()).sqrt() * n;
         orthogonal + parallel
     }
@@ -150,7 +150,7 @@ pub fn unit_vector(v: Vec3) -> Vec3 {
     (1.0 / v.length()) * v
 }
 
-pub fn dot(v: &Vec3, w: &Vec3) -> f64 {
+pub fn dot(v: Vec3, w: Vec3) -> f64 {
     v.x() * w.x() + v.y() * w.y() + v.z() * w.z()
 }
 

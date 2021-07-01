@@ -61,7 +61,7 @@ impl Material {
             direction: scatter_direction,
         };
         *attenuation = *albedo;
-        dot(&scatter_direction, &n) > 0.0
+        dot(scatter_direction, n) > 0.0
     }
 
     fn dielectric_scatter(refraction_index: f64, r_in: &Ray, hit_record: &HitRecord,
@@ -70,7 +70,7 @@ impl Material {
         let unit_dir = unit_vector(r_in.direction);
         let n = hit_record.normal;
         let refraction_ratio = if hit_record.front_face { 1.0 / refraction_index } else { refraction_index };
-        let cos_theta = -dot(&unit_dir, &n);
+        let cos_theta = -dot(unit_dir, n);
         let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
 
         let cannot_refract = refraction_ratio * sin_theta > 1.0;

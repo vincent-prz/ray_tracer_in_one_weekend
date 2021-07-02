@@ -18,6 +18,7 @@ use crate::vec3::*;
 use crate::sphere::Sphere;
 use rand::random;
 use std::io;
+use std::time::Instant;
 
 
 pub fn ray_color<T: Hittable>(ray: &Ray, world: &T, depth: u32) -> color::Color {
@@ -105,6 +106,7 @@ fn main() {
     );
 
     // render
+    let render_instant = Instant::now();
     println!("P3\n{} {}\n255", image_width, image_height);
     for j in (0..image_height).rev() {
         eprintln!("{} lines remaining", j + 1);
@@ -123,4 +125,5 @@ fn main() {
         }
     }
     eprintln!("Done.");
+    eprintln!("rendering duration: {}s", render_instant.elapsed().as_secs());
 }

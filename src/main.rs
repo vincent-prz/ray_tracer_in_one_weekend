@@ -41,11 +41,11 @@ pub fn ray_color<T: Hittable>(ray: &Ray, world: &T, depth: u32) -> color::Color 
     (1.0 - t) * Vec3(1.0, 1.0, 1.0) + t * Vec3(0.5, 0.7, 1.0)
 }
 
-fn random_scene() -> HittableList<Sphere> {
-    let mut world: HittableList<Sphere> = HittableList::new();
+fn random_scene() -> HittableList {
+    let mut world: HittableList = HittableList::new();
     let material_ground = Material::Lambertian { albedo: Vec3(0.5, 0.5, 0.5) };
-    world.add(sphere::Sphere {center: Vec3(0.0, -1000.0, 0.0), radius: 1000.0,
-         mat: material_ground});
+    world.add(Box::new(Sphere {center: Vec3(0.0, -1000.0, 0.0), radius: 1000.0,
+         mat: material_ground}));
     for a in -11..11 {
         for b in -11..11 {
             let choose_mat: f64 = random();
@@ -57,27 +57,27 @@ fn random_scene() -> HittableList<Sphere> {
                     // diffuse
                     let albedo = Vec3::random(0.0, 1.0) * Vec3::random(0.0, 1.0);
                     let sphere_material = Material::Lambertian { albedo };
-                    world.add(Sphere { center, radius: 0.2, mat: sphere_material})
+                    world.add(Box::new(Sphere { center, radius: 0.2, mat: sphere_material}))
                 }  else if choose_mat < 0.95 {
                     // metal
                     let albedo = Vec3::random(0.5, 1.0);
                     let fuzz : f64 = random();
                     let sphere_material = Material::Metal { albedo, fuzz: Some(fuzz) };
-                    world.add(Sphere { center, radius: 0.2, mat: sphere_material})
+                    world.add(Box::new(Sphere { center, radius: 0.2, mat: sphere_material}))
                 } else {
                     // glass
                     let sphere_material = Material::Dielectric { refraction_index: 1.5 };
-                    world.add(Sphere { center, radius: 0.2, mat: sphere_material})
+                    world.add(Box::new(Sphere { center, radius: 0.2, mat: sphere_material}))
                 }
             }
         }
     }
     let material_dielectric = Material::Dielectric { refraction_index: 1.5 };
-    world.add(Sphere { center: Vec3(0.0, 1.0, 0.0), radius: 1.0, mat: material_dielectric });
+    world.add(Box::new(Sphere { center: Vec3(0.0, 1.0, 0.0), radius: 1.0, mat: material_dielectric }));
     let material_lambertian = Material::Lambertian { albedo: Vec3(0.4, 0.2, 0.1) };
-    world.add(Sphere { center: Vec3(-4.0, 1.0, 0.0), radius: 1.0, mat: material_lambertian });
+    world.add(Box::new(Sphere { center: Vec3(-4.0, 1.0, 0.0), radius: 1.0, mat: material_lambertian }));
     let material_metal = Material::Metal { albedo: Vec3(0.7, 0.6, 0.5), fuzz: None };
-    world.add(Sphere { center: Vec3(4.0, 1.0, 0.0), radius: 1.0, mat: material_metal });
+    world.add(Box::new(Sphere { center: Vec3(4.0, 1.0, 0.0), radius: 1.0, mat: material_metal }));
     world
 }
 
